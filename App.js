@@ -21,6 +21,7 @@ export default function App() {
   const [orig, setOrig] = useState();
   const [getDist, setDist] = useState();
   const [getMin, setMin] = useState();
+  const [getMyCurrentLoc,setMyCurrentLoc] = useState('Choose your current location')
 
 
   useEffect(() => {
@@ -59,11 +60,15 @@ export default function App() {
 
         const curloc = street || city;
         setOrig(curloc);
+
+        setMyCurrentLoc(curloc)
       }
     })();
   }, []);
 
   //Map component
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -89,7 +94,7 @@ export default function App() {
         <View style={{ paddingHorizontal: 20 }}>
           <GooglePlacesAutocomplete
 
-            placeholder="Choose your current location"
+            placeholder= {getMyCurrentLoc}
             styles={{
               container: {
                 flex: 0,
