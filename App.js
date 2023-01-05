@@ -1,18 +1,17 @@
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import nearbPlaces, { ascendingSort } from './utils/nearbPlaces';
-import MapView, { Marker } from 'react-native-maps';
-import { useState, useRef, useEffect } from 'react';
-import MapViewDirections from 'react-native-maps-directions';
-// import Geolocation from '@react-native-community/geolocation';
+import { useState, useEffect,useRef } from 'react';
+import * as Location from 'expo-location';
+import Map from './components/Map';
 
 export default function App() {
   //Set latitude and longitude
   const [getCord, setCord] = useState({
-    desc: 'Trust Specialist Hospital, Osu',
+    desc: '',
     lat: 5.5607445,
     lng: -0.1872202,
-    vicinity: '1 Sunkwa Road, Accra',
+    vicinity: '',
   });
 
   //Set origin
@@ -20,107 +19,48 @@ export default function App() {
   const [getDist, setDist] = useState();
   const [getMin, setMin] = useState();
 
-  // const [position, setPosition] = useState({
-  //   latitude: 10,
-  //   longitude: 10,
-  //   latitudeDelta: 0.001,
-  //   longitudeDelta: 0.001,
-  // });
 
-  // useEffect(() => {
-  //   Geolocation.getCurrentPosition((pos) => {
-  //     const crd = pos.coords;
-  //     setPosition({
-  //       latitude: crd.latitude,
-  //       longitude: crd.longitude,
-  //       latitudeDelta: 0.0421,
-  //       longitudeDelta: 0.0421,
-  //     });
-  //   }).catch((err) => {
-  //     console.log(err);
-  //   });
-  // }, []);
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+      }
 
-  // console.log(position)
+      Location.setGoogleApiKey('AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI');
 
+      let { coords } = await Location.getCurrentPositionAsync();
 
+      if (coords) {
+        let { longitude, latitude } = coords;
 
-
-
-
-
-  //Map component
-  const Map = ({ latitude, longitude, desc, vicinity }) => {
-    const mapRef = useRef(null);
-    useEffect(() => {
-      if ((!orig, !vicinity)) return;
-
-      //Zoom
-      mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
-        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-      });
-    }, [orig, vicinity]);
-
-    useEffect(() => {
-      if ((!orig, !vicinity)) return;
-      const getTravelTime = async () => {
-        try {
-          const obj = await fetch(
-            `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${orig}&destinations=${vicinity}&key=AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI`
-          );
-          const data = await obj.json();
-          const dist = data.rows[0].elements[0];
-
-          if (dist) {
-            setDist(dist?.distance.text);
-            setMin(dist?.duration.text);
-          }
-
-          //
-        } catch (err) {
-          console.log(err);
-        }
-      };
-
-      getTravelTime();
-    }, [orig, vicinity]);
-
-
-
-    return (
-      <MapView
-        ref={mapRef}
-        style={{ flex: 1 }}
-        mapType="mutedStandard"
-        initialRegion={{
-          latitude,
-          longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        }}
-      >
-        {orig && vicinity && (
-          <MapViewDirections
-            origin={orig}
-            destination={vicinity}
-            apikey="AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI"
-            strokeWidth={3}
-            strokeColor="black"
-          />
-        )}
-
-        <Marker
-          coordinate={{
+        if ((longitude, latitude)) {
+          const obj = {
             latitude,
             longitude,
-          }}
-          title="Destination"
-          description={desc}
-          identifier="destination"
-        />
-      </MapView>
-    );
-  };
+          };
+          nearbPlaces(obj, (data) => {
+            const arr = Object.values(data).map((v) => v.cordinates);
+            const sort = ascendingSort(arr)[0];
+            setCord(sort);
+          });
+        }
+
+        let regionName = await Location.reverseGeocodeAsync({
+          longitude,
+          latitude,
+        });
+
+        const street = regionName[0].street;
+        const city = regionName[0].country + ', ' + regionName[0].city;
+
+        const curloc = street || city;
+        setOrig(curloc);
+      }
+    })();
+  }, []);
+
+  //Map component
 
   return (
     <SafeAreaView style={styles.container}>
@@ -131,6 +71,9 @@ export default function App() {
             longitude={getCord.lng}
             desc={getCord.desc}
             vicinity={getCord.vicinity}
+            orig={orig}
+            setDist={setDist}
+            setMin={setMin}
           />
         )}
       </View>
@@ -142,6 +85,7 @@ export default function App() {
 
         <View style={{ paddingHorizontal: 20 }}>
           <GooglePlacesAutocomplete
+          
             placeholder="Choose your current location"
             styles={{
               container: {
@@ -186,7 +130,7 @@ export default function App() {
         </View>
 
         <View style={styles.results}>
-          <Text>{getCord.desc || 'No hospital found'}</Text>
+          <Text>{getCord.desc || 'Loading.....'}</Text>
         </View>
       </View>
     </SafeAreaView>
