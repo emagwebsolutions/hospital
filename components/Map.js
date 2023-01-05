@@ -1,6 +1,7 @@
 import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { useRef, useEffect } from 'react';
+import apiKey from '../config'
 
 const Map = ({
   latitude,
@@ -27,7 +28,7 @@ const Map = ({
     const getTravelTime = async () => {
       try {
         const obj = await fetch(
-          `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${orig}&destinations=${vicinity}&key=AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI`
+          `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${orig}&destinations=${vicinity}&key=${apiKey.key}`
         );
         const data = await obj.json();
         const dist = data.rows[0].elements[0];

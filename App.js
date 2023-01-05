@@ -4,6 +4,9 @@ import nearbPlaces, { ascendingSort } from './utils/nearbPlaces';
 import { useState, useEffect,useRef } from 'react';
 import * as Location from 'expo-location';
 import Map from './components/Map';
+import apiKey from './config'
+
+
 
 export default function App() {
   //Set latitude and longitude
@@ -27,7 +30,7 @@ export default function App() {
         console.log('Permission to access location was denied');
       }
 
-      Location.setGoogleApiKey('AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI');
+      Location.setGoogleApiKey(apiKey.key);
 
       let { coords } = await Location.getCurrentPositionAsync();
 
@@ -85,7 +88,7 @@ export default function App() {
 
         <View style={{ paddingHorizontal: 20 }}>
           <GooglePlacesAutocomplete
-          
+
             placeholder="Choose your current location"
             styles={{
               container: {
@@ -97,6 +100,9 @@ export default function App() {
                 borderRadius: 0,
               },
             }}
+
+          
+
             onPress={(data, details = null) => {
               const { lat, lng } = details.geometry.location;
 
@@ -116,7 +122,7 @@ export default function App() {
             enablePoweredByContainer={false}
             minLength={2}
             query={{
-              key: 'AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI',
+              key: apiKey.key,
               language: 'en',
             }}
             nearbyPlacesAPI="GooglePlacesSearch"
