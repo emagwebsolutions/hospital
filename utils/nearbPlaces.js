@@ -1,10 +1,12 @@
+import apiKey from '../config'
+
 const nearbPlaces = (obj,callback) => {
 
   const latitude = obj.latitude;
   const longitude = obj.longitude;
   const radius = 1000;
   const placeType = 'hospital';
-  const googleAPIKey = 'AIzaSyBwWao0VHpKLzniFCR9QKVvT0tKrkezZHI';
+  const googleAPIKey = apiKey.key
 
   const url =
     'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' +
