@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "hospital",
-    "slug": "hospital",
+    "name": "hospital Locator",
+    "slug": "hospital-locator",
+    "description": "A school project hospital locator",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
