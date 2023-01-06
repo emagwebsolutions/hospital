@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as Location from 'expo-location';
 import nearbPlaces from '../utils/nearbPlaces';
 import { ascendingSort } from '../utils/nearbPlaces';
-import { hospitalCordinatesFunc, userCurrentLoc } from './appSlice';
+import { hospitalCordinates, userCurrentLoc } from './appSlice';
 import apiKey from '../config';
 
 useAccessdevicelocation = () => {
@@ -34,7 +34,7 @@ useAccessdevicelocation = () => {
               const sort = ascendingSort(arr)[0];
 
               //DISPATCH hospital latitude and longitued
-              dispatch(hospitalCordinatesFunc(sort));
+              dispatch(hospitalCordinates(sort));
             });
           }
 

@@ -1,29 +1,132 @@
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import nearbPlaces, { ascendingSort } from '../utils/nearbPlaces';
-import Map from './Map';
+
 import apiKey from '../config';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  hospitalCordinatesFunc,
   userCurrentLocFunc,
-  milesTimeFunc,
+  userCurrentLoc,
+  hospitalCordinates
 } from './appSlice';
 import useGetMilesAndTime from './useGetMilesAndTime';
 import useAccessdevicelocation from './useAccessdevicelocation';
 
+import MapView, { Marker } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+import { useRef, useEffect } from 'react';
+
+
+
+
+
+
 
 export default function Main() {
-  const getCord = useSelector(hospitalCordinatesFunc)
-  const orig = useSelector(userCurrentLocFunc)
-  const milesTime = useSelector(milesTimeFunc)
-  const dispatch = useDispatch()
 
-  const getMyCurrentLoc = orig || 'Choose your current location'
+
+
+  const Map = () => {
+    const desc = useSelector((state)=> state.app.desc)
+    const lat  = useSelector((state)=> state.app.lat)
+    const lng  = useSelector((state)=> state.app.lng)
+    const vicinity  = useSelector((state)=> state.app.vicinity)
+    const orig = useSelector((state)=> state.app.orig)
   
+  
+  
+    const mapRef = useRef(null);
+  
+    useEffect(() => {
+      if ((!orig, !vicinity)) return;
+  
+      //Zoom
+      mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
+        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+      });
+    }, [orig, vicinity, lat, lng]);
+  
+    return (
+      <MapView
+        ref={mapRef}
+        style={{ flex: 1 }}
+        mapType="mutedStandard"
+        initialRegion={{
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        }}
+      >
+        {orig && vicinity &&  (
+          <MapViewDirections
+            origin={orig}
+            destination={vicinity}
+            apikey={apiKey.key}
+            strokeWidth={3}
+            strokeColor="black"
+          />
+        )}
+  
+        {orig && vicinity && (
+          <Marker
+            coordinate={{
+              latitude: lat,
+              longitude: lng,
+            }}
+            title="Destination"
+            description={desc}
+            identifier="destination"
+          />
+        )}
+      </MapView>
+    );
+  };
+
+
+
+
+
+
+
   useAccessdevicelocation()
 
   useGetMilesAndTime()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const desc = useSelector((state)=> state.app.desc)
+  const lat  = useSelector((state)=> state.app.lat)
+  const lng  = useSelector((state)=> state.app.lng)
+  const vicinity  = useSelector((state)=> state.app.vicinity)
+  const orig = useSelector(userCurrentLocFunc)
+
+  const miles = useSelector((state)=> state.app.miles)
+  const time = useSelector((state)=> state.app.time)
+  const dispatch = useDispatch()
+
+
+
+  const getMyCurrentLoc = orig || 'Choose your current location'
+  
+
 
   return (
       <SafeAreaView style={styles.container}>
@@ -31,10 +134,10 @@ export default function Main() {
 
 
           <Map
-            latitude={getCord.lat}
-            longitude={getCord.lng}
-            desc={getCord.desc}
-            vicinity={getCord.vicinity}
+            latitude={lat}
+            longitude={lng}
+            desc={desc}
+            vicinity={vicinity}
             orig={orig}
           />
 
@@ -72,11 +175,11 @@ export default function Main() {
                   const sort = ascendingSort(arr)[0];
 
                   //DISPATCH hospital latitudes and longitues
-                  dispatch(hospitalCordinatesFunc(sort))
+                  dispatch(hospitalCordinates(sort))
                   
                 });
                 //DISPATCH user current location
-                dispatch(userCurrentLocFunc(data.description));
+                dispatch(userCurrentLoc(data.description));
               }}
               fetchDetails={true}
               returnKeyType="search"
@@ -96,15 +199,15 @@ export default function Main() {
           <View style={styles.km}>
 
 
-            <Text>Miles: {milesTime.miles}</Text>
-            <Text>Est Time: {milesTime.time}</Text>
+            <Text>Miles: {miles}</Text>
+            <Text>Est Time: {time}</Text>
 
 
           </View>
           <View style={styles.results}>
 
 
-            <Text>{getCord.desc || 'Loading.....'}</Text>
+            <Text>{desc || 'Loading.....'}</Text>
 
 
           </View>

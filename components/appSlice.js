@@ -15,9 +15,9 @@ const appslice = createSlice({
   initialState,
   reducers: {
     hospitalCordinates: (state, { payload }) => {
-      state.desck = payload.desc;
-      state.lat = payload.lat ? payload.lat : state.lat;
-      state.lng = payload.lng ? payload.lng : state.lng;
+      state.desc = payload.desc;
+      state.lat = payload.lat ;
+      state.lng = payload.lng ;
       state.vicinity = payload.vicinity;
     },
     userCurrentLoc: (state, { payload }) => {
@@ -33,9 +33,9 @@ const appslice = createSlice({
 export const { hospitalCordinates, userCurrentLoc, milesTime } =
   appslice.actions;
 
-export const hospitalCordinatesFunc = (state) => state.app;
+
 export const userCurrentLocFunc = (state) => state.app.orig;
-export const milesTimeFunc = (state) => state.app;
+
 
 export default appslice.reducer;
 
