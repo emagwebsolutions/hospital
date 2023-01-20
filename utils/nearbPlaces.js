@@ -27,7 +27,10 @@ const nearbPlaces = (obj,callback) => {
     .then((res) => {
       let place = {};
 
+
+
       for (let gp of res.results) {
+
         place[gp.place_id] = {
           placeTypes: gp.types,
           cordinates: {
@@ -38,6 +41,9 @@ const nearbPlaces = (obj,callback) => {
           },
           ploaceId: gp.place_id,
           placeName: gp.name,
+          rating: gp.rating, 
+          user_ratings_total: gp.user_ratings_total,
+          open: '24 hours'
         };
       }
 

@@ -30,11 +30,14 @@ useAccessdevicelocation = () => {
               longitude,
             };
             nearbPlaces(obj, (data) => {
-              const arr = Object.values(data).map((v) => v.cordinates);
-              const sort = ascendingSort(arr)[0];
+              const arr = Object.values(data).map((v) => {
+                if (v) {
+                  return v;
+                }
+              });
 
               //DISPATCH hospital latitude and longitued
-              dispatch(hospitalCordinates(sort));
+              dispatch(hospitalCordinates(arr));
             });
           }
 
@@ -51,8 +54,14 @@ useAccessdevicelocation = () => {
           dispatch(userCurrentLoc(curloc));
         }
       } catch (err) {
-        console.log(err.message);
-        console.log('Access denied');
+        dispatch(
+          hospitalCordinates({
+            desc: 'Enter a location!',
+            lat: 5.5607445,
+            lng: -0.1872202,
+            vicinity: '',
+          })
+        );
       }
     };
 
