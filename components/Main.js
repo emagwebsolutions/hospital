@@ -5,12 +5,10 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
+  Linking,
 } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import nearbPlaces from '../utils/nearbPlaces';
-
-import { useEffect, useState } from 'react';
-
 import apiKey from '../config';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -18,13 +16,10 @@ import {
   userCurrentLoc,
   hospitalCordinates,
 } from './appSlice';
-import useGetMilesAndTime from './useGetMilesAndTime';
 import useAccessdevicelocation from './useAccessdevicelocation';
-
 import MapView, { Marker } from 'react-native-maps';
-// import MapViewDirections from 'react-native-maps-directions';
-
 import { hospitalCordinatesFunc } from './appSlice';
+import { useState } from 'react';
 
 export default function Main() {
   const hosp = useSelector(hospitalCordinatesFunc);
@@ -34,28 +29,87 @@ export default function Main() {
   const listHospitals = Object.values(hosp).map((v, k) => {
     return (
       <View key={k} style={styles.hostpDetails}>
-        <Text style={{ fontSize: 18 }}>{v.placeName}</Text>
-        <Text>Hospital {v.cordinates.vicinity}</Text>
+        <Text
+          style={{ fontSize: 18 }}
+          onPress={() => {
+            Linking.openURL(
+              `https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${v.place_id}`
+            );
+          }}
+        >
+          {v.placeName}
+        </Text>
+        <Text
+          onPress={() => {
+            Linking.openURL(
+              `https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${v.place_id}`
+            );
+          }}
+        >
+          Hospital {v.cordinates?.vicinity}
+        </Text>
         <Text>
           {v.user_ratings_total ? v.rating : ''}
-          {v.user_ratings_total ? <Image source={require('../assets/ratings.png')} /> : ''}
+          {v.user_ratings_total ? (
+            <Image source={require('../assets/ratings.png')} />
+          ) : (
+            ''
+          )}
 
           {v.user_ratings_total ? `(${v.user_ratings_total})` : ''}
         </Text>
-        
-        <Text>Open {v.open}</Text>
+
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: 40,
+          }}
+        >
+          <Text style={{marginRight: 10}}>Request a ride</Text>
+
+          <Text
+            style={{
+              width: 3,
+              height: 42,
+              flex: 1,
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              Linking.openURL(`https://m.bolt.eu/Login`);
+            }}
+          >
+            <Image source={require('../assets/bolt.png')} /> Bolt
+          </Text>
+
+          <Text
+            style={{
+              width: 3,
+              height: 42,
+              flex: 1,
+              justifyContent: 'center',
+              flexDirection: 'column',
+            }}
+            onPress={() => {
+              Linking.openURL(
+                `https://auth.uber.com/v2/?breeze_local_zone=dca8&next_url=https%3A%2F%2Fm.uber.com%2Flooking%3Fmarketing_vistor_id%3D5961f56a-0132-4c10-ab87-c2aa2daf5042%26uclick_id%3Ddc9950a4-b454-445e-ac98-c006bc52571d&state=T2SBkEsZ2L4cjJA4ffIHWr-u24ZX8SCnJ6WtnoZKoL0%3D`
+              );
+            }}
+          >
+            <Image source={require('../assets/uber.png')} /> Uber
+          </Text>
+        </View>
       </View>
     );
   });
 
   const Map = () => {
-    //const [inim,setInim] = useState()
-
     const inim = Object.values(hosp).map((v) => {
       if (v) {
         return {
-          lng: v.cordinates.lng,
-          lat: v.cordinates.lat,
+          lng: v?.cordinates?.lng,
+          lat: v?.cordinates?.lat,
         };
       }
     })[0];
@@ -71,8 +125,8 @@ export default function Main() {
           initialRegion={{
             latitude: inim.lat,
             longitude: inim.lng,
-            latitudeDelta: 0.055,
-            longitudeDelta: 0.055,
+            latitudeDelta: 0.033,
+            longitudeDelta: 0.033,
           }}
         >
           {orig &&
@@ -86,9 +140,26 @@ export default function Main() {
                 title="Destination"
                 description={v.cordinates.desc}
                 identifier="destination"
+                image={require('../assets/hsp.png')}
               />
             ))}
         </MapView>
+      );
+    } else {
+      return (
+        <MapView
+          style={{ flex: 1 }}
+          mapType="mutedStandard"
+          showsUserLocation={true}
+          followUserLocation={true}
+          zoomEnabled={true}
+          initialRegion={{
+            latitude: 5.5607445,
+            longitude: -0.1872202,
+            latitudeDelta: 0.033,
+            longitudeDelta: 0.033,
+          }}
+        ></MapView>
       );
     }
   };
@@ -158,7 +229,13 @@ export default function Main() {
         </View>
 
         <View style={styles.km}>
-          <ScrollView>{listHospitals}</ScrollView>
+          <ScrollView>
+            {listHospitals.length > 0 ? (
+              listHospitals
+            ) : (
+              <Text style={{ fontSize: 22 }}>Please wait....</Text>
+            )}
+          </ScrollView>
         </View>
       </View>
     </SafeAreaView>
@@ -190,8 +267,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 11,
     fontSize: 22,
-    height: 300,
+    height: 260,
     backgroundColor: '#ccc',
+    alignItems: 'center',
   },
 
   hostpDetails: {

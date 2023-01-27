@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as Location from 'expo-location';
 import nearbPlaces from '../utils/nearbPlaces';
-import { ascendingSort } from '../utils/nearbPlaces';
 import { hospitalCordinates, userCurrentLoc } from './appSlice';
 import apiKey from '../config';
 

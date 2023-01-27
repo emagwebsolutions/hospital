@@ -1,12 +1,11 @@
-import apiKey from '../config'
+import apiKey from '../config';
 
-const nearbPlaces = (obj,callback) => {
-
+const nearbPlaces = (obj, callback) => {
   const latitude = obj.latitude;
   const longitude = obj.longitude;
   const radius = 1000;
   const placeType = 'hospital';
-  const googleAPIKey = apiKey.key
+  const googleAPIKey = apiKey.key;
 
   const url =
     'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' +
@@ -27,40 +26,37 @@ const nearbPlaces = (obj,callback) => {
     .then((res) => {
       let place = {};
 
-
-
       for (let gp of res.results) {
-
         place[gp.place_id] = {
           placeTypes: gp.types,
           cordinates: {
-            lat: gp.geometry.location.lat, 
+            lat: gp.geometry.location.lat,
             lng: gp.geometry.location.lng,
             desc: gp.name,
-            vicinity: gp.vicinity
+            vicinity: gp.vicinity,
           },
           ploaceId: gp.place_id,
           placeName: gp.name,
-          rating: gp.rating, 
+          rating: gp.rating,
           user_ratings_total: gp.user_ratings_total,
-          open: '24 hours'
+          open: '24 hours',
+          place_id: gp.place_id,
         };
       }
 
-      callback(place)
+      callback(place);
     })
     .catch((error) => {
       console.log(error);
     });
 };
 
-
-export const ascendingSort = ( arr )=>{
-  return arr.sort((a,b)=>{
-      if(a.lat > b.lat) return 1;
-      if(b.lat > a.lat) return -1;
-      return 0
-  })
-}
+export const ascendingSort = (arr) => {
+  return arr.sort((a, b) => {
+    if (a.lat > b.lat) return 1;
+    if (b.lat > a.lat) return -1;
+    return 0;
+  });
+};
 
 export default nearbPlaces;
